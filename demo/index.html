@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sudoku Demo</title>
+    <style>
+      body {
+        margin: 0;
+        min-height: 100vh;
+        background: #0d1117;
+        color: #c9d1d9;
+        font-family: ui-sans-serif, system-ui, sans-serif;
+      }
+
+      .demo-toolbar {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        padding: 20px;
+      }
+
+      .demo-toolbar button,
+      .demo-toolbar select {
+        min-height: 40px;
+        padding: 0 12px;
+        border-radius: 10px;
+        border: 1px solid #30363d;
+        background: #161b22;
+        color: #c9d1d9;
+      }
+
+      #demo-app {
+        padding: 0 16px 24px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="demo-toolbar">
+      <select id="theme">
+        <option value="github-dark">GitHub Dark</option>
+        <option value="github-light">GitHub Light</option>
+      </select>
+      <select id="difficulty">
+        <option value="easy">Easy</option>
+        <option value="medium" selected>Medium</option>
+        <option value="hard">Hard</option>
+      </select>
+      <button id="notes">Toggle Notes</button>
+      <button id="restart">Restart</button>
+      <button id="new">New Game</button>
+    </div>
+    <div id="demo-app"></div>
+    <script type="module" src="./main.ts"></script>
+  </body>
+</html>
