@@ -2,10 +2,31 @@
   "name": "github-friendly-sudoku",
   "version": "0.1.0",
   "description": "Embeddable GitHub-friendly Sudoku game for the browser.",
+  "license": "MIT",
   "type": "module",
   "main": "./dist/index.js",
   "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hmpastana/sudoku.git"
+  },
+  "bugs": {
+    "url": "https://github.com/hmpastana/sudoku/issues"
+  },
+  "homepage": "https://github.com/hmpastana/sudoku#readme",
+  "keywords": [
+    "sudoku",
+    "game",
+    "browser",
+    "typescript",
+    "vite",
+    "library",
+    "embed"
+  ],
+  "engines": {
+    "node": ">=20.0.0"
+  },
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
@@ -18,9 +39,11 @@
   ],
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build": "npm run build:types && vite build",
+    "build:types": "tsc -p tsconfig.build.json",
     "preview": "vite preview",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "prepublishOnly": "npm run typecheck && npm run build"
   },
   "devDependencies": {
     "@types/node": "^22.10.2",

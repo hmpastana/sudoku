@@ -110,7 +110,19 @@ The package is configured for ESM output and type definitions through Vite and T
 
 ## Publishing notes
 
-- Update `name`, `version`, repository metadata, and license in `package.json`
-- Run `npm run build`
-- Publish the generated `dist/` folder with npm
-- Keep the demo separate from published internals
+Before publishing:
+
+```bash
+npm run typecheck
+npm run build
+npm login
+npm publish
+```
+
+Notes:
+
+- The package now emits both the runtime bundle and `.d.ts` type definitions into `dist/`
+- `prepublishOnly` runs typecheck and build automatically before publish
+- The package is configured for Node `20+`
+- If the package name is already taken on npm, update the `name` field in [`package.json`](./package.json) before publishing
+- If you want to publish under an npm scope later, you may also want to add `publishConfig.access`

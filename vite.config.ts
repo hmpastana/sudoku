@@ -17,6 +17,7 @@ export default defineConfig(({ command }) => {
 
   return {
     build: {
+      emptyOutDir: false,
       lib: {
         entry: resolve(ROOT_DIR, "src/index.ts"),
         name: "GithubFriendlySudoku",
