@@ -1,6 +1,6 @@
 {
   "name": "github-friendly-sudoku",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Embeddable GitHub-friendly Sudoku game for the browser.",
   "license": "MIT",
   "type": "module",

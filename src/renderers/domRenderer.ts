@@ -18,6 +18,7 @@ export function createDomRenderer(target: HTMLElement, engine: SudokuEngine, con
 
   const refs = buildShell(root, config);
   buildNumberPad(refs.numberPad, engine);
+  const cellElements = buildBoard(refs.board, engine);
 
   return {
     mount() {
@@ -138,20 +139,11 @@ export function createDomRenderer(target: HTMLElement, engine: SudokuEngine, con
     refs.difficulty.value = state.difficulty;
     syncWinModal(state.status === "won");
 
-    refs.board.innerHTML = "";
-    const fragment = document.createDocumentFragment();
     const selectedValue = state.selected ? state.board[state.selected.row][state.selected.col] : 0;
 
     for (let row = 0; row < 9; row += 1) {
       for (let col = 0; col < 9; col += 1) {
-        const button = document.createElement("button");
-        button.type = "button";
-        button.className = "gsudoku-cell";
-        button.dataset.row = String(row);
-        button.dataset.col = String(col);
-        button.setAttribute("role", "gridcell");
-        button.setAttribute("aria-label", `Row ${row + 1} column ${col + 1}`);
-
+        const button = cellElements[row][col];
         const cellPosition = { row, col };
         const value = state.board[row][col];
         const isSelected = state.selected?.row === row && state.selected?.col === col;
@@ -159,40 +151,15 @@ export function createDomRenderer(target: HTMLElement, engine: SudokuEngine, con
         const isHinted = state.hintedCells.includes(positionKey(cellPosition));
         const isInvalid = state.invalidCells.includes(positionKey(cellPosition));
 
-        if (state.fixed[row][col]) button.classList.add("is-fixed");
-        if (isSelected) button.classList.add("is-selected");
-        if (isRelatedCell(state.selected, cellPosition) && !isSelected) button.classList.add("is-related");
-        if (isMatching) button.classList.add("is-matching");
-        if (isHinted) button.classList.add("is-hinted");
-        if (isInvalid) button.classList.add("is-invalid");
-
-        button.addEventListener("click", () => engine.selectCell(row, col));
-
-        const content = document.createElement("div");
-        content.className = "gsudoku-cell-content";
-
-        if (value !== 0) {
-          const valueNode = document.createElement("span");
-          valueNode.className = "gsudoku-value";
-          valueNode.textContent = String(value);
-          content.appendChild(valueNode);
-        } else if (state.notes[row][col].length > 0) {
-          const notesGrid = document.createElement("div");
-          notesGrid.className = "gsudoku-notes";
-          for (let note = 1; note <= 9; note += 1) {
-            const noteNode = document.createElement("span");
-            noteNode.textContent = state.notes[row][col].includes(note) ? String(note) : "";
-            notesGrid.appendChild(noteNode);
-          }
-          content.appendChild(notesGrid);
-        }
-
-        button.appendChild(content);
-        fragment.appendChild(button);
+        button.classList.toggle("is-fixed", state.fixed[row][col]);
+        button.classList.toggle("is-selected", isSelected);
+        button.classList.toggle("is-related", isRelatedCell(state.selected, cellPosition) && !isSelected);
+        button.classList.toggle("is-matching", isMatching);
+        button.classList.toggle("is-hinted", isHinted);
+        button.classList.toggle("is-invalid", isInvalid);
+        updateCellContent(button, value, state.notes[row][col]);
       }
     }
-
-    refs.board.appendChild(fragment);
   }
 
   function syncWinModal(isVisible: boolean): void {
@@ -364,6 +331,65 @@ function buildNumberPad(target: HTMLDivElement, engine: SudokuEngine): void {
   clearButton.textContent = "Clear";
   clearButton.addEventListener("click", () => engine.clearSelectedCell());
   target.appendChild(clearButton);
+}
+
+function buildBoard(target: HTMLDivElement, engine: SudokuEngine): HTMLButtonElement[][] {
+  target.innerHTML = "";
+  const fragment = document.createDocumentFragment();
+  const cells: HTMLButtonElement[][] = [];
+
+  for (let row = 0; row < 9; row += 1) {
+    const currentRow: HTMLButtonElement[] = [];
+    for (let col = 0; col < 9; col += 1) {
+      const button = document.createElement("button");
+      button.type = "button";
+      button.className = "gsudoku-cell";
+      button.dataset.row = String(row);
+      button.dataset.col = String(col);
+      button.setAttribute("role", "gridcell");
+      button.setAttribute("aria-label", `Row ${row + 1} column ${col + 1}`);
+      button.innerHTML = `<div class="gsudoku-cell-content"></div>`;
+      button.addEventListener("click", () => engine.selectCell(row, col));
+      currentRow.push(button);
+      fragment.appendChild(button);
+    }
+    cells.push(currentRow);
+  }
+
+  target.appendChild(fragment);
+  return cells;
+}
+
+function updateCellContent(button: HTMLButtonElement, value: number, notes: number[]): void {
+  const content = button.firstElementChild as HTMLDivElement;
+  if (!content) {
+    return;
+  }
+
+  if (value !== 0) {
+    const existingValue = content.firstElementChild as HTMLElement | null;
+    if (existingValue?.classList.contains("gsudoku-value") && existingValue.textContent === String(value)) {
+      return;
+    }
+    content.innerHTML = `<span class="gsudoku-value">${value}</span>`;
+    return;
+  }
+
+  if (notes.length > 0) {
+    const notesMarkup = Array.from({ length: 9 }, (_, index) => {
+      const note = index + 1;
+      return `<span>${notes.includes(note) ? note : ""}</span>`;
+    }).join("");
+    const nextMarkup = `<div class="gsudoku-notes">${notesMarkup}</div>`;
+    if (content.innerHTML !== nextMarkup) {
+      content.innerHTML = nextMarkup;
+    }
+    return;
+  }
+
+  if (content.innerHTML !== "") {
+    content.innerHTML = "";
+  }
 }
 
 function applyColorOverrides(root: HTMLElement, config: ResolvedSudokuConfig): void {
