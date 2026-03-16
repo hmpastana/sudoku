@@ -2,6 +2,8 @@
 
 An embeddable browser Sudoku library with a GitHub-inspired default theme. The project has been refactored from a standalone page into a reusable TypeScript package with separated core logic, DOM rendering, portable styles, and a demo app for local development.
 
+Live demo: https://hellenpastana.com/sudoku
+
 ## Installation
 
 ```bash
